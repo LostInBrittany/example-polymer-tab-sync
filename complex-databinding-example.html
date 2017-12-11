@@ -1,0 +1,272 @@
+<!--
+@license MIT
+Copyright (c) 2017 Horacio "LostInBrittany" Gonzalez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+
+<link rel="import" href="../polymer/polymer-element.html">
+
+<!-- Bootstrap -->
+<link rel="import" href="../granite-bootstrap/granite-bootstrap-min.html">
+
+<link rel="import" href="./edit-user.html">
+
+<dom-module id="complex-databinding-example">
+  <template>
+    <style include="granite-bootstrap-min">
+      :host {
+        display: block;
+      }
+      .container {
+        margin-bottom: 36px;
+      }
+      .table th, .table td {
+        vertical-align: middle;
+      }
+    </style>
+    <div class="container">                
+      <h2>Hero list</h2>
+      <table class="table table-striped">
+        <tr>
+          <th>#</td>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Email</th>  
+          <th></th>      
+          <th></th>             
+        </tr> 
+        <template is="dom-repeat" items="[[users.heros]]" as="user">
+          <tr>
+            <td>{{index}}</td>            
+            <td>{{user.firstName}}</td> 
+            <td>{{user.lastName}}</td> 
+            <td>{{user.email}}</td>
+            <td><div class="btn btn-primary" on-click="_doEditHero">Edit</div></td>
+            <td><div class="btn btn-primary" on-click="_doDeleteHero">Delete</div></td>
+          </tr>
+        </template> 
+      </table>
+      <template is="dom-if" if="[[_editing.heros]]">
+        <h2>Edit hero</h2>
+        <edit-user 
+            id="editUser"
+            first-name="[[_editingUsers.heros.firstName]]"
+            last-name="[[_editingUsers.heros.lastName]]"
+            email="[[_editingUsers.heros.email]]"
+            message="Edit"
+            on-user-edit="_validateHero"></edit-user>
+      </template>
+    </div>
+    <div class="container">                
+      <h2>Villain list</h2>
+      <table class="table table-striped">
+        <tr>
+          <th>#</td>
+          <th>First name</th>
+          <th>Last name</th>
+          <th>Email</th>  
+          <th></th>        
+          <th></th>          
+        </tr> 
+        <template is="dom-repeat" items="[[users.villains]]" as="user">
+          <tr>
+            <td>{{index}}</td>            
+            <td>{{user.firstName}}</td> 
+            <td>{{user.lastName}}</td> 
+            <td>{{user.email}}</td>
+            <td><div class="btn btn-primary" on-click="_doEditVillain">Edit</div></td>
+            <td><div class="btn btn-primary" on-click="_doDeleteVillain">Delete</div></td>
+          </tr>
+        </template> 
+      </table>
+      <template is="dom-if" if="[[_editing.villains]]">
+        <h2>Edit villain</h2>
+        <edit-user 
+            id="editUser"
+            first-name="[[_editingUsers.villains.firstName]]"
+            last-name="[[_editingUsers.villains.lastName]]"
+            email="[[_editingUsers.villains.email]]"
+            message="Edit"
+            on-user-edit="_validateVillain"></edit-user>
+      </template>
+    </div>
+    <div class="container">
+      <h2>Add a user</h2>
+      <form class="form-inline">        
+      <input id="heroOrVillain" type="checkbox" class="form-check-input" on-click="_changeHeroOrVillain">
+      Is user an hero?
+      </form>
+
+      <edit-user 
+          message='Add'
+          on-user-edit="_validateNewUser"></edit-user>
+    </div>
+  </template>
+
+  <script>
+    /**
+     * `complex-databinding-example`
+     * An example of array binding and observers with Polymer 2
+     *
+     * @customElement
+     * @polymer
+     */
+    class ComplexDatabindingExample extends Polymer.Element {
+      static get is() { return 'complex-databinding-example'; }
+
+      static get properties() {
+        return {
+          users: {
+            type: Object,
+            value: () => {}
+          },
+
+          _editing: {
+            type: Object,
+            value: () => {}
+          },
+
+          _editingUsers: {
+            type: Object,
+            value: () => { return {}; }
+          },
+          _editingIndexes: {
+            type: Object,
+            value: () => {}
+          },
+          _heroOrVillain: {
+            type: String,
+            value: "villains",
+          }
+        };
+      }
+
+      static get observers() {
+        return [
+          '_herosChanged(users.heros.splices)',
+          '_villainsChanged(users.villains.splices)',
+        ];
+      }
+
+      ready() {
+        super.ready();
+        this.users = {
+          heros: [
+            { firstName: "Peter", lastName: "Parker", email: "peter.parker@example.org" },
+            { firstName: "Bruce", lastName: "Wayne", email: "bruce.wayne@example.org" }
+          ],
+          villains: [
+            { firstName: "Anakin", lastName: "Skywalker", email: "anakin.skywalker@example.org" },
+            { firstName: "Tom", lastName: "Riddle", email: "tom.ridle@example.org" },
+          ]
+        };
+        this._editing = {
+          heros: false,
+          villains: false,
+        };
+        this._editingUsers = {
+          heros: {},
+          villains: {},
+        };
+        this._editingIndexes = {
+          heros: -1,
+          villains: -1,
+        };
+      }
+
+      _herosChanged() {
+        console.log('[complex-databinding-example] _herosChanged', this.users.heros);
+      }
+
+      _villainsChanged() {
+        console.log('[complex-databinding-example] _villainsChanged', this.users.villains);
+      }
+
+      _doEditHero(evt) {
+        console.debug('[complex-databinding-example] _doEditHero', evt.model);
+        this.set('_editingUsers.heros', evt.model.user);
+        this.set('_editingIndexes.heros', evt.model.index);
+        this.set('_editing.heros', true);
+      }
+
+      _doEditVillain(evt) {
+        console.debug('[complex-databinding-example] _doEditVillain', evt.model);
+        this.set('_editingUsers.villains', evt.model.user);
+        this.set('_editingIndexes.villains', evt.model.index);
+        this.set('_editing.villains', true);
+      }
+
+      _validateHero(evt) {
+        console.log('[complex-databinding-example] _validateHero - evt', evt);
+        console.log('[complex-databinding-example] _validateHero - heros', this.users.heros);
+        
+        // If we stop after next line, the observer don't see anything
+        this.users.heros[this._editingIndexes.heros] = evt.detail;
+
+        // Next line doesn't work, as the reference doesn't change...
+        this.set('users.heros', this.users.heros);
+
+        // Let's create a new reference, in ES6 way...
+        this.set('users.heros', [ ...this.users.heros ]);
+
+        this.set('_editing.heros', false);
+        this.set('_editingUsers.heros', {});
+      }
+
+      _validateVillain(evt) {
+        console.log('[complex-databinding-example] _validateVillain - evt', evt);
+        console.log('[complex-databinding-example] _validateVillain - villains', this.users.villains);
+        
+        // If we stop after next line, the observer don't see anything
+        this.users.villains[this._editingIndexes.villains] = evt.detail;
+
+        // Next line doesn't work, as the reference doesn't change...
+        this.set('users.villains', this.users.villains);
+
+        // Let's create a new reference, in ES6 way...
+        this.set('users.villains', [ ...this.users.villains ]);
+
+        this.set('_editing.villains', false);
+        this.set('_editingUsers.villains', {});
+      }
+
+      _validateNewUser(evt) {
+        console.log('[complex-databinding-example] _validateNewUser - category ', this._heroOrVillain,' - user ', evt.detail);
+        // Let's create a new reference, in ES6 way...
+        this.set(['users', this._heroOrVillain], [ ...this.users[this._heroOrVillain], evt.detail ]);
+
+
+      }
+
+      _doDeleteHero(evt) {
+        console.debug('[complex-databinding-example] _doDeleteHero', evt.model);
+        // We can also simply user this.splice
+        this.splice('users.heros', evt.model.index, 1);   
+      }
+
+      _doDeleteVillain(evt) {
+        console.debug('[complex-databinding-example] _doDeleteVillain', evt.model);
+        // We can also simply user this.splice
+        this.splice('users.villains', evt.model.index, 1);   
+      }      
+
+      _changeHeroOrVillain(evt) {
+        // The native input does not emit a change-event for its checked attribute, 
+        // so the binding wouldn't update your checked property. 
+        console.log('[complex-databinding-example] _changeHeroOrVillain - heroOrVillain checked', this.$.heroOrVillain.checked);
+        if (this.$.heroOrVillain.checked) {
+          this._heroOrVillain = 'heros';
+        } else {
+          this._heroOrVillain = 'villains';
+        }
+      }
+    }
+
+    window.customElements.define(ComplexDatabindingExample.is, ComplexDatabindingExample);
+  </script>
+</dom-module>
