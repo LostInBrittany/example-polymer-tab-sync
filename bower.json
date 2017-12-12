@@ -1,9 +1,9 @@
 {
-  "name": "example-polymer-array-binding",
+  "name": "example-pouchdb",
   "authors": [
     "Horacio Gonzalez <horacio.gonzalez@gmail.com>"
   ],
-  "description": "Example of array data binding with Polymer",
+  "description": "Example of using PouchDb with Polymer",
   "keywords": [
     "web-component",
     "web-components",
@@ -20,7 +20,9 @@
   "ignore": [],
   "dependencies": {
     "polymer": "Polymer/polymer#~2.2.0",
-    "granite-bootstrap": "LostInBrittany/granite-bootstrap#^4.0.2-beta.2.1"
+    "granite-bootstrap": "LostInBrittany/granite-bootstrap#^4.0.2-beta.2.1",
+    "iron-ajax": "PolymerElements/iron-ajax#^2.0.6",
+    "app-pouchdb": "PolymerElements/app-pouchdb#^2.1.1"
   },
   "devDependencies": {}
 }
