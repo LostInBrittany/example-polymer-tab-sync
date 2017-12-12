@@ -1,6 +1,6 @@
-## example-polymer-array-binding
+## example-polymer-pouchdb
 
-A quick example of array data binding on Polymer
+A quick example of using PouchDB on Polymer
 
 
 ![Screenshot](./screenshot.png)
