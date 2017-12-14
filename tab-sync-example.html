@@ -1,0 +1,154 @@
+<!--
+@license MIT
+Copyright (c) 2017 Horacio "LostInBrittany" Gonzalez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-->
+
+<link rel="import" href="../polymer/polymer-element.html">
+
+<!-- Bootstrap -->
+<link rel="import" href="../granite-bootstrap/granite-bootstrap-min.html">
+
+
+<link rel="import" href="../app-storage/app-localstorage/app-localstorage-document.html">
+
+
+<dom-module id="tab-sync-example">
+  <template>    
+    <style include="granite-bootstrap-min">
+      :host {
+        display: block;
+      }
+      .right {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-end;
+      }
+
+
+      .messages {
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        padding: .375rem .75rem;
+        min-height: 5rem;
+      }
+      .message { 
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      .message .sender {
+        font-weight: bold;
+      }
+
+      h4 {
+        margin-top: 2rem;
+      }
+    </style>
+    <app-localstorage-document
+        id="chatInstancesStore"
+        key="chatInstances"
+        data="{{chatInstances}}"
+        ></app-localstorage-document>
+    <app-localstorage-document
+        id="messagesStore"
+        key="messages"
+        data="{{messages}}"
+        ></app-localstorage-document>
+
+    <div class="container">
+      <h2>Instance [[instanceId]]</h2>
+
+      <h4>Send a message</h4>
+      <div>
+        <form class="form">
+          <div class="form-group">
+            <label class="sr-only" for="messageInput">Message</label>
+            <input type="text" class="form-control mb-2 mr-sm-2 mb-sm-0"  value="{{messageBody::input}}"  id="messageInput" placeholder="Write your message">
+          </div>
+        </form>
+        <div class="right">
+          <button id="sendMessage" type="submit" class="btn btn-primary" on-click="_sendMessage">Post</button>
+        </div>
+      </div>
+
+      <h4>Messages</h4>
+      <div class="messages">
+        <template is="dom-repeat" items="[[messages]]" as="message">
+          <div class="message">
+            <div class="sender">[[message.sender]]</div>
+            <div class="body">[[message.body]]</div>
+          </div>
+        </template>
+      </div>
+
+
+      <h4>Instructions</h4>
+      Well, it's a Twitter-like between tabs of a same browser, i.e. a tab can post messages and all the other tabs receive the
+      messages and display them in real-time.
+
+      Open this page in several browser tabs (on the same browser, of course). Each tab will get an unique instance id.
+      Write and send some messages...
+    </div>  
+  </template>
+
+  <script>
+    /**
+     * @customElement
+     * @polymer
+     */
+    class TabSyncExample extends Polymer.Element {
+      static get is() { return 'tab-sync-example'; }
+
+      static get properties() {
+        return {
+          instanceId: {
+            type: Number,
+            value: () => { return Math.floor(Math.random() * 1000000000000) },
+          },
+          chatInstances: {
+            type: Array,
+            value: () => [],
+            observer: '_onChatInstancesChanged'
+          },
+          messages: {
+            type: Array,
+            value: () => [],
+            observer: '_onMessagesChanged'
+          },
+          messageBody: {
+            type: String,
+          }
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+        console.log('[tab-sync-example] connectedCallback', this.instanceId);
+      }
+
+      _onChatInstancesChanged() {
+        if (this.chatInstances.indexOf(this.instanceId) < 0 ) {
+          this.chatInstances.push(this.instanceId);
+          this.$.chatInstancesStore.saveValue('chatInstances', this.chatInstances);
+          console.log('[tab-sync-example] _onChatInstancesChanged - chatInstances', this.chatInstances)
+        }
+      }
+
+      _sendMessage() {
+        this.messages = [ ...this.messages, { sender: this.instanceId, body: this.messageBody }];
+        this.$.messagesStore.saveValue('messages', this.messages);
+        this.messageBody = "";
+      }
+
+      _onMessagesChanged() {
+        console.log('[tab-sync-example] _onMessagesChanged', this.messages);
+      }
+    }
+    window.customElements.define(TabSyncExample.is, TabSyncExample);
+  </script>
+</dom-module>

@@ -1,10 +1,12 @@
-## example-polymer-pouchdb
+## example-polymer-tab-sync
 
-A quick example of using PouchDB on Polymer
+A quick example project using local storage with `app-storage` elements to synchronize info between browser tabs.
 
+Well, it's a Twitter-like between tabs of a same browser, i.e. a tab can post messages and all the other tabs receive the
+messages and display them in real-time.
 
-![Screenshot](./screenshot.png)
-
+Open this page in several browser tabs (on the same browser, of course). Each tab will get an unique instance id.
+Write and send some messages...
 
 ## How to test
 
@@ -27,7 +29,7 @@ A quick example of using PouchDB on Polymer
   ```
   $ polymer serve 
   Starting Polymer serve on port 8080
-  Files in this directory are available under http://localhost:8080/components/example-polymer-array-binding/   
+  Files in this directory are available under http://localhost:8080/components/example-polymer-tab-sync/   
   ```
   
   
